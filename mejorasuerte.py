@@ -1,5 +1,6 @@
 import random
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 class GeneradorCongruencial:
     def __init__(self, semilla=1234, a=1664525, c=1013904223, m=2**32):
@@ -17,6 +18,7 @@ class Arquero:
     def __init__(self, nombre, genero):
         self.nombre = nombre
         self.genero = genero
+        self.puntajes_por_juego = {}
         self.resetear_estado()
     
     def resetear_estado(self):
@@ -28,6 +30,10 @@ class Arquero:
         self.rondas_ganadas = 0
         self.rondas_ganadas_consecutivas = 0
         self.bonus_resistencia = 0
+    
+    def registrar_puntaje(self, juego_numero):
+        """Guarda el puntaje obtenido en el juego actual."""
+        self.puntajes_por_juego[juego_numero] = self.puntaje_total
     
     def recalcular_suerte(self):
         """Recalcula la suerte al inicio de cada ronda"""
@@ -190,6 +196,7 @@ def jugar_juego_completo():
     lista_experiencia_por_juego = []
 
     lista_victorias_genero = []
+    lista_victorias_genero_juego = {'M': 0, 'F': 0}
     victorias_genero_totales = {'M': 0, 'F': 0}
 
     for juego in range(20000):
@@ -205,6 +212,8 @@ def jugar_juego_completo():
             puntaje_juego["Equipo 1"] += puntajes_ronda["Equipo 1"]
             puntaje_juego["Equipo 2"] += puntajes_ronda["Equipo 2"]
 
+        for arquero in equipo1 + equipo2:
+            arquero.registrar_puntaje(juego)
 
         # Actualizar estadísticas globales
         puntaje_global["Equipo 1"] += puntaje_juego["Equipo 1"]
@@ -233,25 +242,38 @@ def jugar_juego_completo():
         
         for arquero in equipo1 + equipo2:
             victorias_genero[arquero.genero] += arquero.rondas_ganadas
-            lista_victorias_genero.append(arquero)
+        lista_victorias_genero.append(victorias_genero)
 
         victorias_genero_totales['M'] += victorias_genero['M']
         victorias_genero_totales['F'] += victorias_genero['F']
+
+                
         
 
+#    for arquero in equipo1 + equipo2:
+#       print(f"Puntajes de {arquero.nombre}: {arquero.puntajes_por_juego}")
 
+
+    for victorias_genero in lista_victorias_genero:
+        if victorias_genero['M'] > victorias_genero['F']:
+            lista_victorias_genero_juego['M'] += 1
+        else:
+            lista_victorias_genero_juego['F'] += 1
 
     total_m = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'M')
     total_f = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'F')
     print(f"Total arqueros masculinos: {total_m}, Total arqueros femeninos: {total_f}")    
 
-    print(f"victorias por genero masculino: {victorias_genero_totales['M']}")
-    print(f"victorias por genero femenino: {victorias_genero_totales['F']}")
+    print(f"Victorias en rondas por genero masculino: {victorias_genero_totales['M']}")
+    print(f"victorias en rondas por genero femenino: {victorias_genero_totales['F']}")
+
+    print(f"victorias en juegos por genero masculino: {lista_victorias_genero_juego['M']}")
+    print(f"victorias en juegos por genero femenino: {lista_victorias_genero_juego['F']}")
 
 
-    print("\nLista de jugadores ganadores por generos en cada juego:")
-    for i, arquero in enumerate(lista_victorias_genero[:20], start=1):  # Mostramos solo los primeros 100
-        print(f"Juego {i}: {arquero.nombre} genero: {arquero.genero}")    
+    print("\nLista de número de victorias por genero en cada juego:")
+    for i, victorias_genero in enumerate(lista_victorias_genero[:20], start=1):  # Mostramos solo los primeros 100
+        print(f"Juego {i}: Victorias genero masculino:{victorias_genero['M']} | Victorias por genero Femenino: {victorias_genero['F']}")    
 
     print("\nLista de jugadores con más suerte en cada juego:")
     for i, nombre in enumerate(lista_suerte_por_juego[:20], start=1):  # Mostramos solo los primeros 100
@@ -276,8 +298,29 @@ def jugar_juego_completo():
     print("\n Mejores arqueros (veces que fue el mejor en un juego):")
     for arquero, veces in sorted(mejores_arqueros.items(), key=lambda x: x[1], reverse=True)[:5]:
         print(f"  {arquero}: {veces} veces")
+    graficar_puntajes(equipo1, equipo2)
 
+def graficar_puntajes(equipo1, equipo2):
+    """
+    Genera un gráfico de líneas con los puntajes de cada arquero en función de los juegos.
+    
+    :param equipo1: Lista de objetos de arquero del primer equipo.
+    :param equipo2: Lista de objetos de arquero del segundo equipo.
+    """
+    plt.figure(figsize=(10, 6))  # Tamaño del gráfico
 
+    for arquero in equipo1 + equipo2:
+        juegos = list(arquero.puntajes_por_juego.keys())  # Juegos (X)
+        puntajes = list(arquero.puntajes_por_juego.values())  # Puntajes (Y)
+        
+        plt.plot(juegos, puntajes, marker='o', label=f"Arquero {arquero.nombre}")
+
+    plt.xlabel("Juego")
+    plt.ylabel("Puntaje")
+    plt.title("Puntajes por Juego de los Arqueros")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 if __name__ == "__main__":
     jugar_juego_completo()
