@@ -189,6 +189,8 @@ def jugar_juego_completo():
     lista_suerte_por_juego = []
     lista_experiencia_por_juego = []
 
+    lista_victorias_genero = []
+    victorias_genero_totales = {'M': 0, 'F': 0}
 
     for juego in range(20000):
         # Reiniciar estado para nuevo juego
@@ -227,10 +229,29 @@ def jugar_juego_completo():
         arquero_mas_experiencia = max(equipo1 + equipo2, key=lambda x: x.experiencia)
         lista_experiencia_por_juego.append(arquero_mas_experiencia.nombre)
 
+        victorias_genero = {'M': 0, 'F': 0}
+        
+        for arquero in equipo1 + equipo2:
+            victorias_genero[arquero.genero] += arquero.rondas_ganadas
+            lista_victorias_genero.append(arquero)
+
+        victorias_genero_totales['M'] += victorias_genero['M']
+        victorias_genero_totales['F'] += victorias_genero['F']
+        
+
+
 
     total_m = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'M')
     total_f = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'F')
     print(f"Total arqueros masculinos: {total_m}, Total arqueros femeninos: {total_f}")    
+
+    print(f"victorias por genero masculino: {victorias_genero_totales['M']}")
+    print(f"victorias por genero femenino: {victorias_genero_totales['F']}")
+
+
+    print("\nLista de jugadores ganadores por generos en cada juego:")
+    for i, arquero in enumerate(lista_victorias_genero[:20], start=1):  # Mostramos solo los primeros 100
+        print(f"Juego {i}: {arquero.nombre} genero: {arquero.genero}")    
 
     print("\nLista de jugadores con más suerte en cada juego:")
     for i, nombre in enumerate(lista_suerte_por_juego[:20], start=1):  # Mostramos solo los primeros 100
