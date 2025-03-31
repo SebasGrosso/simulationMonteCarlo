@@ -1,6 +1,13 @@
 import random
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import time
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+
+app = Flask(__name__)
+CORS(app)
 
 class GeneradorCongruencial:
     def __init__(self, semilla=1234, a=1664525, c=1013904223, m=2**32):
@@ -11,15 +18,36 @@ class GeneradorCongruencial:
 
     def next(self):
         self.xn = (self.a * self.xn + self.c) % self.m
-        return self.xn / self.m  # Normalizamos a [0,1]
+        return self.xn / self.m  # Normalizamos a [0,1]}
+    
+    def genero_aleatorio(self):
+        return "F" if self.next() < 0.5 else "M"
     
 generador = GeneradorCongruencial()    
+generadorGeneros = GeneradorCongruencial(semilla=int(time.time()))    
+
+datos_a_enviar = {}
+
 class Arquero:
     def __init__(self, nombre, genero):
         self.nombre = nombre
         self.genero = genero
         self.puntajes_por_juego = {}
         self.resetear_estado()
+
+    def to_dict(self):
+        return {
+            "nombre": self.nombre,
+            "genero": self.genero,
+            "resistencia": self.resistencia,
+            "experiencia": self.experiencia,
+            "suerte": self.suerte,
+            "puntaje_total": self.puntaje_total,
+            "rondas_ganadas": self.rondas_ganadas,
+            "rondas_ganadas_consecutivas": self.rondas_ganadas_consecutivas,
+            "bonus_resistencia": self.bonus_resistencia,
+            "puntajes_por_juego": self.puntajes_por_juego
+        }
     
     def resetear_estado(self):
         """Reinicia el estado del arquero para un nuevo juego"""
@@ -183,8 +211,8 @@ def jugar_ronda(equipo1, equipo2):
 
 def jugar_juego_completo():
     # Crear equipos (los mismos para todos los juegos)
-    equipo1 = [Arquero(f"Arquero {i+1} del equipo 1", random.choice(['M', 'F'])) for i in range(5)]
-    equipo2 = [Arquero(f"Arquero {i+6} del equipo 2", random.choice(['M', 'F'])) for i in range(5)]
+    equipo1 = [Arquero(f"Arquero {i+1} del equipo 1", generadorGeneros.genero_aleatorio()) for i in range(5)]
+    equipo2 = [Arquero(f"Arquero {i+6} del equipo 2", generadorGeneros.genero_aleatorio()) for i in range(5)]
     
     puntaje_global = {"Equipo 1": 0, "Equipo 2": 0}
     victorias = {"Equipo 1": 0, "Equipo 2": 0, "Empates": 0}
@@ -247,12 +275,6 @@ def jugar_juego_completo():
         victorias_genero_totales['M'] += victorias_genero['M']
         victorias_genero_totales['F'] += victorias_genero['F']
 
-                
-        
-
-#    for arquero in equipo1 + equipo2:
-#       print(f"Puntajes de {arquero.nombre}: {arquero.puntajes_por_juego}")
-
 
     for victorias_genero in lista_victorias_genero:
         if victorias_genero['M'] > victorias_genero['F']:
@@ -262,6 +284,48 @@ def jugar_juego_completo():
 
     total_m = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'M')
     total_f = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'F')
+
+    global datos_a_enviar
+    """datos_a_enviar = {
+        "total_generos": [total_m, total_f],
+        "victorias_rondas_masculino": victorias_genero_totales['M'],
+        "victorias_rondas_femenino": victorias_genero_totales['F'],
+        "victorias_juegos_masculino": lista_victorias_genero_juego['M'],
+        "victorias_juegos_femenino": lista_victorias_genero_juego['F'],
+        "victorias_por_genero_juego": lista_victorias_genero,
+        "jugadores_con_suerte": lista_suerte_por_juego,
+        "jugadores_con_experiencia": lista_experiencia_por_juego,
+        "victorias_totales": victorias,
+        "puntaje_global": puntaje_global,
+        "mejores_arqueros": mejores_arqueros,
+        "equipo_1": equipo1,
+        "equipo_2": equipo2
+    }"""
+
+    # Si "mejores_arqueros", "equipo1" y "equipo2" contienen objetos de la clase Arquero
+    datos_a_enviar = {
+        "total_generos": [total_m, total_f],
+        "victorias_rondas_masculino": victorias_genero_totales['M'],
+        "victorias_rondas_femenino": victorias_genero_totales['F'],
+        "victorias_juegos_masculino": lista_victorias_genero_juego['M'],
+        "victorias_juegos_femenino": lista_victorias_genero_juego['F'],
+        "victorias_por_genero_juego": list(lista_victorias_genero),
+        "jugadores_con_suerte": list(lista_suerte_por_juego),
+        "jugadores_con_experiencia": list(lista_experiencia_por_juego),
+        "victorias_totales": victorias,
+        "puntaje_global": puntaje_global,
+        "mejores_arqueros": [
+            arquero.to_dict() if hasattr(arquero, "to_dict") else arquero for arquero in mejores_arqueros
+        ],
+        "equipo_1": [
+            arquero.to_dict() if hasattr(arquero, "to_dict") else arquero for arquero in equipo1
+        ],
+        "equipo_2": [
+            arquero.to_dict() if hasattr(arquero, "to_dict") else arquero for arquero in equipo2
+        ]
+    }
+
+    """.................."""
     print(f"Total arqueros masculinos: {total_m}, Total arqueros femeninos: {total_f}")    
 
     print(f"Victorias en rondas por genero masculino: {victorias_genero_totales['M']}")
@@ -298,7 +362,9 @@ def jugar_juego_completo():
     print("\n Mejores arqueros (veces que fue el mejor en un juego):")
     for arquero, veces in sorted(mejores_arqueros.items(), key=lambda x: x[1], reverse=True)[:5]:
         print(f"  {arquero}: {veces} veces")
-    graficar_puntajes(equipo1, equipo2)
+    #graficar_puntajes(equipo1, equipo2)
+
+    """.................."""
 
 def graficar_puntajes(equipo1, equipo2):
     """
@@ -322,5 +388,12 @@ def graficar_puntajes(equipo1, equipo2):
     plt.grid(True)
     plt.show()
 
-if __name__ == "__main__":
-    jugar_juego_completo()
+jugar_juego_completo()
+
+@app.route('/datos', methods=['GET'])
+def enviar_datos():
+    global datos_a_enviar
+    return jsonify([datos_a_enviar])
+
+if __name__ == '__main__':
+    app.run(debug=False, port=5000)

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas de Arqueros</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+</head>
+
+<body>
+    <div id="app">
+
+        
+        <h1>Estadísticas de Arqueros</h1>
+
+        <!-- Totales por género -->
+        <div class="stats">
+            <div class="card">
+                <h2>Arqueros por Género</h2>
+                <p>Masculinos: {{ total_generos[0] }}</p>
+                <p>Femeninos: {{ total_generos[1] }}</p>
+            </div>
+            <div class="card">
+                <h2>Victorias por Rondas</h2>
+                <p>Masculinos: {{ victorias_rondas_masculino }}</p>
+                <p>Femeninos: {{ victorias_rondas_femenino }}</p>
+            </div>
+            <div class="card">
+                <h2>Victorias por Juegos</h2>
+                <p>Masculinos: {{ victorias_juegos_masculino }}</p>
+                <p>Femeninos: {{ victorias_juegos_femenino }}</p>
+            </div>
+        </div>
+
+        <h2>Top 3 Jugadores</h2>
+        <div class="podium">
+            <div class="podium-item second">{{ mejores_arqueros[1] || '---' }}</div>
+            <div class="podium-item first">{{ mejores_arqueros[0] || '---' }}</div>
+            <div class="podium-item third">{{ mejores_arqueros[2] || '---' }}</div>
+        </div>
+
+        <h2>Otros Jugadores</h2>
+        <ul>
+            <li v-for="(jugador, index) in mejores_arqueros.slice(3)" :key="index">
+                {{ jugador }}
+            </li>
+        </ul>
+
+        <!-- Lista de victorias por género en cada juego -->
+        <h2 class="xd">Victorias por Género en Cada Juego</h2>
+        <div class="scrollable-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Juego</th>
+                        <th>Masculino</th>
+                        <th>Femenino</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(victorias_genero, index) in victorias_por_genero_juego" :key="index">
+                        <td>Juego {{ index + 1 }}</td>
+                        <td>{{ victorias_genero.M }}</td>
+                        <td>{{ victorias_genero.F }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr class="linea">
+
+        <h2 class="xd">Jugadores con Más Suerte y Experiencia</h2>
+        <div class="row">
+            <div class="scrollable-container">
+                <h3>Jugadores con Más Suerte</h3>
+                <ul>
+                    <li v-for="(jugador, index) in jugadores_con_suerte" :key="index">
+                        Juego {{ index + 1 }}: {{ jugador }}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="scrollable-container">
+                <h3>Jugadores con Más Experiencia</h3>
+                <ul>
+                    <li v-for="(jugador, index) in jugadores_con_experiencia" :key="index">
+                        Juego {{ index + 1 }}: {{ jugador }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <hr class="linea">
+        
+        <h2 class="xd">Resultados Finales y Puntajes Globales</h2>
+        <div class="row">
+            <div class="final-results">
+                <h3>Resultados Finales</h3>
+                <p><strong>Equipo 1:</strong> {{ victorias_totales["Equipo 1"] }} juegos ganados</p>
+                <p><strong>Equipo 2:</strong> {{ victorias_totales["Equipo 2"] }} juegos ganados</p>
+                <p><strong>Empates:</strong> {{ victorias_totales.Empates }} juegos</p>
+            </div>
+            
+            <div class="final-results">
+                <h3>Puntajes Globales</h3>
+                <p><strong>Equipo 1:</strong> {{ puntaje_global["Equipo 1"] }} puntos</p>
+                <p><strong>Equipo 2:</strong> {{ puntaje_global["Equipo 2"] }} puntos</p>
+            </div>
+        </div>
+        
+        <hr class="linea">
+
+        
+    </div>
+    <h2>Gráfica de Puntajes por Juego</h2>
+    <canvas id="graficoPuntajes"></canvas>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+
+</html>
