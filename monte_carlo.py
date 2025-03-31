@@ -1,6 +1,5 @@
 import random
 from collections import defaultdict
-import matplotlib.pyplot as plt
 import time
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -189,9 +188,6 @@ def jugar_ronda(equipo1, equipo2):
         for arquero in [arquero1, arquero2]:
             if arquero.experiencia >= 19 and arquero.bonus_resistencia == 0:
                 arquero.bonus_resistencia = 2
-
-                if arquero.bonus_resistencia>0:
-                    arquero.bonus_resistencia -=1
         
         # Sumar puntos al equipo
         puntajes["Equipo 1"] += puntos_arquero1
@@ -286,23 +282,7 @@ def jugar_juego_completo():
     total_f = sum(1 for arquero in equipo1 + equipo2 if arquero.genero == 'F')
 
     global datos_a_enviar
-    """datos_a_enviar = {
-        "total_generos": [total_m, total_f],
-        "victorias_rondas_masculino": victorias_genero_totales['M'],
-        "victorias_rondas_femenino": victorias_genero_totales['F'],
-        "victorias_juegos_masculino": lista_victorias_genero_juego['M'],
-        "victorias_juegos_femenino": lista_victorias_genero_juego['F'],
-        "victorias_por_genero_juego": lista_victorias_genero,
-        "jugadores_con_suerte": lista_suerte_por_juego,
-        "jugadores_con_experiencia": lista_experiencia_por_juego,
-        "victorias_totales": victorias,
-        "puntaje_global": puntaje_global,
-        "mejores_arqueros": mejores_arqueros,
-        "equipo_1": equipo1,
-        "equipo_2": equipo2
-    }"""
 
-    # Si "mejores_arqueros", "equipo1" y "equipo2" contienen objetos de la clase Arquero
     datos_a_enviar = {
         "total_generos": [total_m, total_f],
         "victorias_rondas_masculino": victorias_genero_totales['M'],
@@ -365,28 +345,6 @@ def jugar_juego_completo():
     #graficar_puntajes(equipo1, equipo2)
 
     """.................."""
-
-def graficar_puntajes(equipo1, equipo2):
-    """
-    Genera un gráfico de líneas con los puntajes de cada arquero en función de los juegos.
-    
-    :param equipo1: Lista de objetos de arquero del primer equipo.
-    :param equipo2: Lista de objetos de arquero del segundo equipo.
-    """
-    plt.figure(figsize=(10, 6))  # Tamaño del gráfico
-
-    for arquero in equipo1 + equipo2:
-        juegos = list(arquero.puntajes_por_juego.keys())  # Juegos (X)
-        puntajes = list(arquero.puntajes_por_juego.values())  # Puntajes (Y)
-        
-        plt.plot(juegos, puntajes, marker='o', label=f"Arquero {arquero.nombre}")
-
-    plt.xlabel("Juego")
-    plt.ylabel("Puntaje")
-    plt.title("Puntajes por Juego de los Arqueros")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
 
 jugar_juego_completo()
 

@@ -68,8 +68,8 @@ ul li {
 }
 
 .scrollable-container {
-    max-height: 300px; /* Altura máxima antes de activar el scroll */
-    overflow-y: auto;  /* Habilita el scroll vertical */
+    max-height: 300px;
+    overflow-y: auto; 
     border: 1px solid #ddd;
     padding: 10px;
     background: white;
@@ -79,7 +79,6 @@ ul li {
     width: 80%;
 }
 
-/* Ajuste de la tabla dentro del contenedor con scroll */
 .scrollable-container table {
     width: 100%;
     border-collapse: collapse;
@@ -96,7 +95,6 @@ ul li {
     color: white;
 }
 
-/* Ajuste para listas */
 .scrollable-container ul {
     list-style-type: none;
     padding: 0;
@@ -172,8 +170,8 @@ h3 {
 
 .linea {
     border: none;
-    height: 2px;  /* Grosor de la línea */
-    background-color: rgb(189, 189, 189); /* Color de la línea */
-    width: 100%;  /* Ocupa toda la pantalla */
+    height: 2px; 
+    background-color: rgb(189, 189, 189);
+    width: 100%;
     margin-top: 40px;
 }

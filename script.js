@@ -17,11 +17,10 @@ new Vue({
             victorias_rondas_femenino: null,
             victorias_rondas_masculino: null,
             victorias_totales: null,
-            puntajesPorJuego: {} // Almacena los puntajes de los arqueros por juego
+            puntajesPorJuego: {}
         };
     },
     methods: {
-        // Este método se encarga de recibir los datos del back
         async getAllData() {
             try {
                 const response = await fetch(`http://localhost:${portBack}/datos`);
@@ -45,7 +44,6 @@ new Vue({
                         this.victorias_rondas_masculino = data.victorias_rondas_masculino;
                         this.victorias_totales = data.victorias_totales;
 
-                        // Extraer puntajes por juego y generar la gráfica
                         this.puntajesPorJuego = this.obtenerPuntajesPorJuego([...this.equipo1, ...this.equipo2]);
                         this.dibujarGrafico();
 
@@ -69,8 +67,6 @@ new Vue({
 
         dibujarGrafico() {
             const ctx = document.getElementById("graficoPuntajes").getContext("2d");
-
-            // Si ya existe una instancia de gráfico, la destruimos para evitar duplicados
             if (this.chartInstance) {
                 this.chartInstance.destroy();
             }
@@ -78,7 +74,7 @@ new Vue({
             const datasets = Object.keys(this.puntajesPorJuego).map(nombre => {
                 return {
                     label: `Arquero ${nombre}`,
-                    data: Object.values(this.puntajesPorJuego[nombre]), // Puntos obtenidos
+                    data: Object.values(this.puntajesPorJuego[nombre]),
                     borderColor: this.getRandomColor(),
                     fill: false,
                     tension: 0.1
@@ -88,7 +84,7 @@ new Vue({
             this.chartInstance = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: Object.keys(this.puntajesPorJuego[Object.keys(this.puntajesPorJuego)[0]]), // Juegos
+                    labels: Object.keys(this.puntajesPorJuego[Object.keys(this.puntajesPorJuego)[0]]),
                     datasets: datasets
                 },
                 options: {
@@ -97,6 +93,9 @@ new Vue({
                         legend: {
                             display: true,
                             position: "top"
+                        },
+                        tooltip: {
+                            enabled: false
                         }
                     },
                     scales: {
